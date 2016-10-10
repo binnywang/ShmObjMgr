@@ -4,25 +4,25 @@
 template <typename T>
 class Singleton {
 public:
-	static T& Instance() {
+	static T& Instance() {
 		return instance; 
 	}
 
-	static T* InstancePtr() {
+	static T* InstancePtr() {
 		return &instance;
 	}
 
 protected:
 	static T instance;
-	ShmSingleton();
-	~ShmSingleton();
+	Singleton() {};
+
 	Singleton(const Singleton&);
 	const Singleton & operator=(const Singleton&);
 };
 
 template <typename T>
-T ShmSingleton<T>::instance;
+T Singleton<T>::instance;
 
-#define DeclareSingleton(ClassName) public: friend class Singleton<ClassName>;
+#define DeclareSingleton(ClassName) public: friend class Singleton<ClassName>
 
 #endif //SHM_SINGLETON_H_

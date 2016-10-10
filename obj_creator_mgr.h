@@ -9,11 +9,11 @@ class IObjectCreator {
 public:	
 	virtual void* ReplacementNew(void* addr) = 0;	
 	virtual void* New() = 0;
+	virtual void Deconstructor(void* addr) = 0;
 };
 
 template <typename T>
-class ObjectCreator: public IObjectCreator, 
-					 public Singleton<ObjectCreator<T> > {
+class ObjectCreator: public IObjectCreator, public Singleton<ObjectCreator<T> > {
 public:
 	DeclareSingleton(ObjectCreator);
 	
@@ -24,12 +24,30 @@ public:
 	virtual void* ReplacementNew(void * addr) {
 		return new(addr) T;	
 	}
+
+	virtual void Deconstructor(void* addr) {
+		T* obj = reinterpret_cast<T*>(addr);
+		obj->~T();
+	}
 };
 
 enum ClassTypeEnum {
 	TYPE_MIN,
+	TYPE_ShmObjCount,
+	TYPE_Base,
 	TYPE_ClassA,	
-	TYPE_ClassB,	
+	TYPE_ClassB,
+	TYPE_BattleActor,
+	TYPE_BattleActorCar,
+	TYPE_BattleActorCarSpawner,
+	TYPE_BattleActorTower,
+	TYPE_BattleActorSoldier,
+	TYPE_BattleActorSoldierSpawner,
+	TYPE_BattleActorProp,
+	TYPE_BattleActorPropSpawner,
+	TYPE_BattleActorRecovery,
+	TYPE_BattleActorBase,
+	TYPE_Battle,
 	MaxClassCount
 };
 
@@ -59,6 +77,11 @@ public:
 		IObjectCreator* creator = obj_creator_[class_id];
 		void* obj = creator->ReplacementNew(addr);
 		return obj;
+	}
+
+	void FreeObject(void* addr, ClassTypeEnum class_id) {
+		IObjectCreator* creator = obj_creator_[class_id];
+		creator->Deconstructor(addr);
 	}
 private:
 	IObjectCreator* obj_creator_[MaxClassCount];	

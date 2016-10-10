@@ -8,7 +8,7 @@ enum LogLevel {
 	LOG_LEVEL_ERROR,
 };
 
-static const LogLevel cur_log_level = LOG_LEVEL_DEBUG;
+static const LogLevel cur_log_level = LOG_LEVEL_ERROR;
 
 #define LOG(log_level, format, ...) \
 	do { \
