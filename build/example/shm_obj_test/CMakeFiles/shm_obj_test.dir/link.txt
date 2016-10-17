@@ -1,1 +1,0 @@
-/usr/bin/c++       CMakeFiles/shm_obj_test.dir/main.cpp.o  -o ../../bin/shm_obj_test -rdynamic ../../src/shm_obj/lib/libshm_obj.a 

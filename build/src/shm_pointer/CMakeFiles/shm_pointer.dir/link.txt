@@ -1,2 +1,0 @@
-/usr/bin/ar cr lib/libshm_pointer.a  CMakeFiles/shm_pointer.dir/shm_pointer_count.cpp.o
-/usr/bin/ranlib lib/libshm_pointer.a
