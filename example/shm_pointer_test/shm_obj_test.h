@@ -9,7 +9,6 @@ using namespace shm_obj;
 
 class Base: public ShmObj {
 public:
-	
 	DeclareTypeName(Base);
 	virtual void Update() {
 		std::cout << "base update" << std::endl;
@@ -46,9 +45,8 @@ public:
 	
 	int GetMember() const { return member_;}
 	void SetMember(int member) {member_ = member;}
-	void SetShmPointer(const WeakShmPointer<ClassB> &weak_shm_poiner) {
+	void SetWeakShmPointer(const WeakShmPointer<ClassB> &weak_shm_poiner) {
 		weak_shm_poiner_ = weak_shm_poiner;
-		// std::cout << "weak_shm_pointer.obj_id = %d" << weak_shm_poiner_.obj_id().id << std::endl;
 	}
 
 	~ClassA() {
@@ -81,7 +79,6 @@ private:
 	WeakShmPointer<ClassB> owner_; 
 };
 
-//ImplmentTypeName(ClassA);
 
 class ClassB: public Base , public EnableShmPointerFromThis<ClassB> {
 public:
@@ -121,7 +118,6 @@ public:
 
 	void SetShmPointer(const ShmPointer<ClassA> &shm_poiner) {
 		shm_poiner_ = shm_poiner;
-		//std::cout << "shm_pointer.obj_id = " << shm_poiner_.obj_id().obj_id << std::endl;
 	}
 
 private:
@@ -141,22 +137,14 @@ void Foo::Update() {
 void ClassA::Update() {
 	std::cout << "class A update" << std::endl;
 	if (!weak_shm_poiner_.Expired()) {
-		//std::cout << "weak_pointer" << std::endl;
 		weak_shm_poiner_.Lock()->Update();
 	}
 }
 
 void ClassB::Update() {
 	std::cout << "class B update" << std::endl;
-	//ShmPointer<ClassB> owner = ShmPointerFromThis();
 	foo_.SetOwner(WeakShmPointer<ClassB>(ShmPointerFromThis()));
 	foo_.Update();
-	/*
-	if (shm_poiner_) {
-		shm_poiner_->Update();
-	}
-	*/
 }
-
 
 #endif

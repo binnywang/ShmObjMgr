@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/shm_pointer_test.dir/main.cpp.o  -o ../../bin/shm_pointer_test -rdynamic ../../src/shm_obj/lib/libshm_obj.a ../../src/shm_pointer/lib/libshm_pointer.a 

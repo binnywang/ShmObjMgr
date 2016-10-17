@@ -1,0 +1,4 @@
+/media/sf_E_DRIVE/workshop/ShmObjMgr/build/src/shm_obj/CMakeFiles/shm_obj.dir
+/media/sf_E_DRIVE/workshop/ShmObjMgr/build/example/shm_obj_test/CMakeFiles/shm_obj_test.dir
+/media/sf_E_DRIVE/workshop/ShmObjMgr/build/src/shm_pointer/CMakeFiles/shm_pointer.dir
+/media/sf_E_DRIVE/workshop/ShmObjMgr/build/example/shm_pointer_test/CMakeFiles/shm_pointer_test.dir

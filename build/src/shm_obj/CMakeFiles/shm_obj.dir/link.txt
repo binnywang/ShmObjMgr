@@ -1,0 +1,2 @@
+/usr/bin/ar cr lib/libshm_obj.a  CMakeFiles/shm_obj.dir/shm_pool.cpp.o CMakeFiles/shm_obj.dir/system.cpp.o
+/usr/bin/ranlib lib/libshm_obj.a

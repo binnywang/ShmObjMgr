@@ -5,6 +5,7 @@
 
 enum LogLevel {
 	LOG_LEVEL_DEBUG,
+	LOG_LEVEL_INFO,
 	LOG_LEVEL_ERROR,
 };
 
@@ -18,6 +19,7 @@ static const LogLevel cur_log_level = LOG_LEVEL_ERROR;
 	} while(0)
 
 #define LOG_ERROR(format, ...)  LOG(LOG_LEVEL_ERROR, format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)   LOG(LOG_LEVEL_INFO, format, ##__VA_ARGS__)
 #define LOG_DEBUG(format, ...)  LOG(LOG_LEVEL_DEBUG, format, ##__VA_ARGS__)
 
 #endif //LOG_H_

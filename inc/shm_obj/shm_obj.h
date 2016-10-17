@@ -30,12 +30,13 @@ typedef union ObjId {
 	};
 } ObjId;
 
-// Y类型是否可以隐试转换为T类型
+/// Y类型是否可以隐试转换为T类型
 template <typename Y, typename T> inline void shm_pointer_assert_convertible() {
 	T *p = static_cast<Y*>(0);
 	(void)p;
 }
 
+/// 共享内存指针封装
 template <typename T> class ShmObjPtr;
 class ShmObjMgr;
 
@@ -96,11 +97,11 @@ private:
 	template<typename Y> friend class ShmObjPtr;
 };
 
-template<typename T, typename U> inline bool operator==(ShmObjPtr<T> const & a, ShmObjPtr<U> const &b) {
+template<typename T, typename U> inline bool operator==(ShmObjPtr<T> const & a, ShmObjPtr<U> const & b) {
 	return a.obj_id() == b.obj_id();
 }
 
-template<typename T, typename U> inline bool operator!=(ShmObjPtr<T> const & a, ShmObjPtr<U> const &b) {
+template<typename T, typename U> inline bool operator!=(ShmObjPtr<T> const & a, ShmObjPtr<U> const & b) {
 	return a.obj_id() != b.obj_id();
 }
 

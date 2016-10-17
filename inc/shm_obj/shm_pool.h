@@ -13,9 +13,10 @@ namespace shm_obj {
 
 class ShmPool {
 public:
-	static const int MAX_CLASS_PER_GROUP = 10;
-	static const int MAX_CLASS_GROUP_NUM = 10;
-///每一组对象的信息	
+	static const int MAX_CLASS_PER_GROUP = 256;
+	static const int MAX_CLASS_GROUP_NUM = 256;
+	
+	/// 每一组对象的信息	
 	struct ObjIndex {
 		ObjId obj_id;
 		int32_t next;
@@ -39,7 +40,7 @@ public:
 		uint16_t seq;
 	};
 
-/// 共享内存头，包含所有的分组信息
+	/// 共享内存头，包含所有的分组信息
 	struct ClassGroupUnit {
 		GroupId group_id;
 		int class_id_num;

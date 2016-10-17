@@ -1,8 +1,6 @@
 #include <iostream>
 #include "shm_obj_mgr.h"
 #include "obj_creator_mgr.h"
-#include "shm_pointer.h"
-#include "weak_shm_pointer.h"
 
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -14,8 +12,6 @@
 
 #include "shm_obj_test.h"
 
-
-
 size_t ServerConfig() {
 
 	/// register obj creator;
@@ -26,7 +22,7 @@ size_t ServerConfig() {
 	GroupId group_id;
 	ShmObjMgr::Instance().NewClassGroup(group_id);
 
-	ShmObjMgr::Instance().AddClassToGroup<ShmObjCount>(group_id, 1000);
+	ShmObjMgr::Instance().AddClassToGroup<ShmObjCount>(group_id, 1000); ///注册多少合适呢？
 	ShmObjMgr::Instance().AddClassToGroup<ClassA>(group_id, 10);
 	ShmObjMgr::Instance().AddClassToGroup<ClassB>(group_id, 20);
 	return ShmObjMgr::Instance().TotalSize();
@@ -112,7 +108,7 @@ int main(int argc, char* argv[]) {
 
 		base_pointer_a->Update();
 
-		a_pointer->SetShmPointer(WeakShmPointer<ClassB>(b_pointer));
+		a_pointer->SetWeakShmPointer(WeakShmPointer<ClassB>(b_pointer));
 		a_pointer->SetMember(111);
 		a_pointer->Update();
 

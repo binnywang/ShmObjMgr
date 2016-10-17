@@ -4,7 +4,6 @@
 #include <new>
 #include "singleton.h"
 
-//using namespace std;
 class IObjectCreator {
 public:	
 	virtual void* ReplacementNew(void* addr) = 0;	
@@ -31,23 +30,13 @@ public:
 	}
 };
 
+/// FIXME: 更好的实现class_type的方式？
 enum ClassTypeEnum {
 	TYPE_MIN,
 	TYPE_ShmObjCount,
 	TYPE_Base,
 	TYPE_ClassA,	
 	TYPE_ClassB,
-	TYPE_BattleActor,
-	TYPE_BattleActorCar,
-	TYPE_BattleActorCarSpawner,
-	TYPE_BattleActorTower,
-	TYPE_BattleActorSoldier,
-	TYPE_BattleActorSoldierSpawner,
-	TYPE_BattleActorProp,
-	TYPE_BattleActorPropSpawner,
-	TYPE_BattleActorRecovery,
-	TYPE_BattleActorBase,
-	TYPE_Battle,
 	MaxClassCount
 };
 
