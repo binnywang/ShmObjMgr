@@ -12,17 +12,15 @@
 
 #include "shm_obj_test.h"
 
-size_t ServerConfig() {
+size_t InitShmPool() {
 
 	/// register obj creator;
 	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassA>();
 	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassB>();
-	ObjectCreatorMgr::Instance().RegisterObjectCreator<ShmObjCount>();
 
 	GroupId group_id;
 	ShmObjMgr::Instance().NewClassGroup(group_id);
 
-	ShmObjMgr::Instance().AddClassToGroup<ShmObjCount>(group_id, 1000); ///注册多少合适呢？
 	ShmObjMgr::Instance().AddClassToGroup<ClassA>(group_id, 10);
 	ShmObjMgr::Instance().AddClassToGroup<ClassB>(group_id, 20);
 	return ShmObjMgr::Instance().TotalSize();
@@ -67,7 +65,7 @@ template <typename Y, typename T> inline void static_cast_test() {
 
 int main(int argc, char* argv[]) {
 
-	size_t total_size = ServerConfig();
+	size_t total_size = InitShmPool();
 	bool fresh = true;
 	void* addr = GetShm("./shm_path_file", total_size, fresh);
 	if (addr == (void*)-1) {
@@ -81,23 +79,23 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	std::cout <<"mem address" << std::hex << addr << std::endl;
+	std::cout <<"shm address" << std::hex << addr << std::endl;
 	
 	if (fresh) {
-		std::cout << "fresh info:" << std::endl; 
-		ShmObjPtr<ClassA> ptr_obj_a = ShmObjMgr::Instance().CreateObject<ClassA>();
-		ShmPointer<ClassA> a_pointer = ShmPointer<ClassA>(ptr_obj_a);
+		std::cout << "shm is fresh:" << std::endl; 
+
+		/// 创建对象
+		ShmObjPtr<ClassA> a_pointer = ShmObjMgr::Instance().CreateObject<ClassA>();
 		if (! a_pointer) {
 			std::cout << "Create ClassA Error: " << ret << std::endl;
 			return -1;
 		}
 
-		ShmPointer<Base> base_pointer_a = a_pointer;
+		/// 派生类指针可以隐士转换为基类
+		ShmObjPtr<Base> base_pointer = a_pointer;
 
-
-		ShmObjPtr<ClassB> ptr_obj_b = ShmObjMgr::Instance().CreateObject<ClassB>();
-		ShmPointer<ClassB> b_pointer = ShmPointer<ClassB>(ptr_obj_b);
-
+		/// 创建B对象
+		ShmObjPtr<ClassB> b_pointer = ShmObjMgr::Instance().CreateObject<ClassB>();
 		if (! b_pointer) {
 			std::cout << "Create ClassB Error: " << ret << std::endl;	
 			return -1;
@@ -106,48 +104,35 @@ int main(int argc, char* argv[]) {
 
 		std::cout << std::dec;
 
-		base_pointer_a->Update();
+		/// 基类指针指向派生类
+		base_pointer->Update();
 
-		a_pointer->SetWeakShmPointer(WeakShmPointer<ClassB>(b_pointer));
 		a_pointer->SetMember(111);
 		a_pointer->Update();
 
-		b_pointer->SetShmPointer(a_pointer);
+		b_pointer->SetClassAObjPtr(a_pointer);
 		b_pointer->SetMember(222);
 		b_pointer->Update();
 		
-		std::cout <<"output pointer" << std::endl;
-		/// save pointer to file 
-		std::cout << "a_pointer.obj_id" << std::dec << ptr_obj_a.obj_id().id << std::endl;
-		std::cout << "a_pointer.count_id" << std::dec << a_pointer.GetObjCountPtr().GetObjCountPtr().obj_id().id << std::endl;
-		std::cout << "b_pointer.obj_id" << std::dec << ptr_obj_b.obj_id().id << std::endl;
-		std::cout << "a_pointer.count_id" << std::dec << b_pointer.GetObjCountPtr().GetObjCountPtr().obj_id().id << std::endl;
-
+		std::cout <<"output pointer:" << std::endl;
+		std::cout << "a_pointer.obj_id" << std::dec << a_pointer.obj_id().id << std::endl;
+		std::cout << "b_pointer.obj_id" << std::dec << b_pointer.obj_id().id << std::endl;
+		
 		int a = 1/0;
+
+		ShmObjMgr::Instance().FreeObject(a_pointer);
+		ShmObjMgr::Instance().FreeObject(b_pointer);
 		
 	} else {
 
-		std::cout << "recovery info: "<< std::endl;
-
+		std::cout << "shm is recovery: "<< std::endl;
 		std::cout << "input a_pointer.obj_id" << std::endl;
 		uint64_t id_a;
 		std::cin >> id_a;
 		ObjId obj_id_a;
 		obj_id_a.id = id_a;
-		ShmObjPtr<ClassA> obj_ptr_a;
-		obj_ptr_a.set_obj_id(obj_id_a);
-
-		std::cout << "input a_pointer.count_id" <<std::endl;
-		uint64_t count_id_a;
-		std::cin >> count_id_a;
-		ObjId obj_count_id_a;
-		obj_count_id_a.id = count_id_a;
-		ShmObjPtr<ShmObjCount> obj_count_ptr_a;
-		obj_count_ptr_a.set_obj_id(obj_count_id_a);
-
-		ShmObjCountPtr shm_obj_count_ptr_a;
-		shm_obj_count_ptr_a.SetObjCountPtr(obj_count_ptr_a);
-		ShmPointer<ClassA> a_pointer = ShmPointer<ClassA>(obj_ptr_a, shm_obj_count_ptr_a);
+		ShmObjPtr<ClassA> a_pointer;
+		a_pointer.set_obj_id(obj_id_a);
 		
 		std::cout << "input b_pointer.obj_id" << std::endl;
 
@@ -155,22 +140,9 @@ int main(int argc, char* argv[]) {
 		std::cin >> id_b;
 		ObjId obj_id_b;
 		obj_id_b.id = id_b;
-		ShmObjPtr<ClassB> obj_ptr_b;
-		obj_ptr_b.set_obj_id(obj_id_b);
+		ShmObjPtr<ClassB> b_pointer;
+		b_pointer.set_obj_id(obj_id_b);
 
-
-		std::cout << "input b_pointer.count_id" <<std::endl;
-		uint64_t count_id_b;
-		std::cin >> count_id_b;
-		ObjId obj_count_id_b;
-		obj_count_id_b.id = count_id_b;
-		ShmObjPtr<ShmObjCount> obj_count_ptr_b;
-		obj_count_ptr_b.set_obj_id(obj_count_id_b);
-
-		ShmObjCountPtr shm_obj_count_ptr_b;
-		shm_obj_count_ptr_b.SetObjCountPtr(obj_count_ptr_b);
-		ShmPointer<ClassB> b_pointer = ShmPointer<ClassB>(obj_ptr_b, shm_obj_count_ptr_b);
-		
 		if(a_pointer) {
 			a_pointer->Update();
 		}
@@ -178,6 +150,10 @@ int main(int argc, char* argv[]) {
 		if(b_pointer) {
 			b_pointer->Update();
 		}
+
+		/// 释放对象
+		ShmObjMgr::Instance().FreeObject(a_pointer);
+		ShmObjMgr::Instance().FreeObject(b_pointer);
 	}
 	
 	return 0;
