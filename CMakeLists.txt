@@ -13,5 +13,5 @@ set (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 add_subdirectory(example/shm_obj_test)
 add_subdirectory(example/shm_pointer_test)
-add_subdirectory(src/shm_pointer)
+add_subdirectory(example/shm_pointer_v2_test)
 add_subdirectory(src/shm_obj)

@@ -5,6 +5,16 @@
 
 using namespace shm_obj;
 
+/// 普通类
+class XXManager {
+public:
+	void Update() {
+		std::cout << "XXManager update" << std::endl;
+	} 
+};
+
+XXManager globalXXManager;
+
 class Base: public ShmObj {
 public:
 	DeclareTypeName(Base);
@@ -26,11 +36,23 @@ public:
 		}
 		member_ = 0;
 	}
+
+	///  
+	virtual void Recover() {
+		xx_manager_ = &globalXXManager;
+		if (xx_manager_) {
+			xx_manager_->Update();
+		}
+	}
 	
 	virtual void Update();
 
 	void SetMember(int member) {
 		member_ = member;
+	}
+
+	void SetXXManager(XXManager* xx_manager) {
+		xx_manager_ = xx_manager;
 	}
 
 	~ClassA() {
@@ -39,6 +61,8 @@ public:
 	
 private:
 	int member_;
+private:
+	XXManager* xx_manager_;
 };
 
 class ClassB: public Base {
@@ -76,6 +100,9 @@ private:
 
 void ClassA::Update() {
 	std::cout << "class A update with member_ = " << member_ << std::endl;
+	if (xx_manager_) {
+		xx_manager_->Update();
+	}
 } 
 
 void ClassB::Update() {
@@ -85,4 +112,7 @@ void ClassB::Update() {
 	}
 } 
 
+ImplmentTypeName(Base);
+ImplmentTypeName(ClassA);
+ImplmentTypeName(ClassB);
 #endif

@@ -17,6 +17,7 @@ int ShmPool::NewClassGroup(GroupId & group_id) {
 	if (tmp_group_info_.group_num >= MAX_CLASS_GROUP_NUM) {
 		return -1;		
 	}
+
 	/// 直接用数组下标作为索引, 加快查找
 	group_id = tmp_group_info_.group_num;
 	tmp_group_info_.group[tmp_group_info_.group_num].group_id = group_id;
@@ -137,7 +138,7 @@ int ShmPool::Init(void * mem,size_t max_size,bool fresh) {
 				used_obj_count++;
 				void* obj = (void*)(obj_group->obj_node_ + index * obj_group->max_class_size);
 				/// recovery obj;
-				ShmObj* shm_obj = reinterpret_cast<ShmObj*>(ObjectCreatorMgr::Instance().CreateObject(obj, (ClassTypeEnum)obj_group->obj_index_[index].obj_id.class_id));
+				ShmObj* shm_obj = reinterpret_cast<ShmObj*>(ObjectCreatorMgr::Instance().CreateObject(obj, obj_group->obj_index_[index].obj_id.class_id));
 				shm_obj->Recover();
 				index = obj_group->obj_index_[index].next;
 			}
@@ -217,7 +218,7 @@ void* ShmPool::NewObject(ClassId class_id, ObjId & obj_id) {
 	
 	void* obj = NewObject(obj_group, class_id, obj_id);
 	if (obj) {
-		return ObjectCreatorMgr::Instance().CreateObject(obj, (ClassTypeEnum)class_id);
+		return ObjectCreatorMgr::Instance().CreateObject(obj, class_id);
 	}  else {
 		return NULL;
 	}
@@ -275,7 +276,6 @@ void* ShmPool::NewObject(ObjGroup* obj_group, ClassId class_id, ObjId & obj_id) 
 }
 
 void* ShmPool::GetObject(ObjGroup* obj_group, const ObjId & obj_id) {
-	///uint32_t obj_index = obj_id.obj_index;
 	if (obj_group->used_obj_count <= 0 || obj_group->used_index_head == -1) {
 		LOG_ERROR("%s:obj_group empty|group_id[%d]\n", __FUNCTION__, obj_group->group_id);
 		return NULL;
@@ -347,7 +347,7 @@ void ShmPool::FreeObject(ObjGroup* obj_group, const ObjId & obj_id) {
 
 	/// NOTE:一定要放在函数最后，防止析构函数再次进入该函数(函数可重入问题)
 	void *obj = obj_group->obj_node_ + index * obj_group->max_class_size;
-	ObjectCreatorMgr::Instance().FreeObject(obj, (ClassTypeEnum)obj_id.class_id);
+	ObjectCreatorMgr::Instance().FreeObject(obj, obj_id.class_id);
 }
 
 std::string ShmPool::DumpObjGroup(ObjGroup * obj_group) {

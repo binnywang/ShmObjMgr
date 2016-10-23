@@ -3,6 +3,7 @@ include_directories(${PROJECT_SOURCE_DIR}/inc/shm_obj)
 
 set(LIB_SRC
     shm_pool.cpp
+    obj_creator_mgr.cpp
     system.cpp)
 
 set(LIBRARY_OUTPUT_PATH lib)

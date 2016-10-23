@@ -8,4 +8,3 @@ set(APP_SRC
 add_executable(shm_pointer_test ${APP_SRC})
 
 target_link_libraries(shm_pointer_test shm_obj)
-target_link_libraries(shm_pointer_test shm_pointer)

@@ -10,11 +10,12 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include "shm_obj_test.h"
 
-size_t ServerConfig() {
+size_t InitShmPool() {
 
 	/// register obj creator;
 	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassA>();
@@ -30,8 +31,14 @@ size_t ServerConfig() {
 	return ShmObjMgr::Instance().TotalSize();
 }
 
-void* GetShm(char* path_name, size_t max_size, bool & is_fresh) {
+void* GetShm(const char* path_name, size_t max_size, bool & is_fresh) {
 	if (path_name == NULL) {
+		return NULL;
+	}
+
+	int fd = open(path_name, O_CREAT | O_RDONLY, 0644);
+	if (fd < 0) {
+		std::cout << "create error " << path_name << strerror(errno) << std::endl;
 		return NULL;
 	}
 
@@ -69,9 +76,9 @@ template <typename Y, typename T> inline void static_cast_test() {
 
 int main(int argc, char* argv[]) {
 
-	size_t total_size = ServerConfig();
+	size_t total_size = InitShmPool();
 	bool fresh = true;
-	void* addr = GetShm("./shm_path_file", total_size, fresh);
+	void* addr = GetShm("./shm_pointer_path_file", total_size, fresh);
 	if (addr == (void*)-1) {
 		std::cout << "Get Shm Error:" << errno << strerror(errno) << std::endl;
 		return -1;
@@ -83,7 +90,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	std::cout <<"mem address" << std::hex << addr << std::endl;
+	std::cout <<"mem address = " << std::hex << addr << std::endl;
 	
 	if (fresh) {
 		std::cout << "fresh info:" << std::endl; 
@@ -93,9 +100,6 @@ int main(int argc, char* argv[]) {
 			std::cout << "Create ClassA Error: " << ret << std::endl;
 			return -1;
 		}
-
-		ShmPointer<Base> base_pointer_a = a_pointer;
-
 
 		ShmObjPtr<ClassB> ptr_obj_b = ShmObjMgr::Instance().CreateObject<ClassB>();
 		ShmPointer<ClassB> b_pointer = ShmPointer<ClassB>(ptr_obj_b);
@@ -107,23 +111,28 @@ int main(int argc, char* argv[]) {
 
 
 		std::cout << std::dec;
+		
+		/// 测试基类指针调用派生类
+		/// ShmPointer<Base> base_pointer_a = a_pointer;
+		/// base_pointer_a->Update();
 
-		base_pointer_a->Update();
+		/// 测试WeakShmPointer析构函数没有被调用的情况
+		WeakShmPointer<ClassB> weak_pointer_b = WeakShmPointer<ClassB>(b_pointer);
 
-		a_pointer->SetWeakShmPointer(WeakShmPointer<ClassB>(b_pointer));
+		a_pointer->SetWeakShmPointerOfClassB(WeakShmPointer<ClassB>(b_pointer));
 		a_pointer->SetMember(111);
 		a_pointer->Update();
 
-		b_pointer->SetShmPointer(a_pointer);
+		b_pointer->SetShmPointerOfClassA(a_pointer);
 		b_pointer->SetMember(222);
 		b_pointer->Update();
 		
 		std::cout <<"output pointer" << std::endl;
 		/// save pointer to file 
-		std::cout << "a_pointer.obj_id" << std::dec << ptr_obj_a.obj_id().id << std::endl;
-		std::cout << "a_pointer.count_id" << std::dec << a_pointer.GetObjCountPtr().GetObjCountPtr().obj_id().id << std::endl;
-		std::cout << "b_pointer.obj_id" << std::dec << ptr_obj_b.obj_id().id << std::endl;
-		std::cout << "a_pointer.count_id" << std::dec << b_pointer.GetObjCountPtr().GetObjCountPtr().obj_id().id << std::endl;
+		std::cout << "a_pointer.obj_id = " << std::dec << ptr_obj_a.obj_id().id << std::endl;
+		std::cout << "a_pointer.count_id = " << std::dec << a_pointer.GetObjCountPtr().GetObjCountPtr().obj_id().id << std::endl;
+		std::cout << "b_pointer.obj_id = " << std::dec << ptr_obj_b.obj_id().id << std::endl;
+		std::cout << "a_pointer.count_id = " << std::dec << b_pointer.GetObjCountPtr().GetObjCountPtr().obj_id().id << std::endl;
 
 		int a = 1/0;
 		
@@ -173,11 +182,11 @@ int main(int argc, char* argv[]) {
 		shm_obj_count_ptr_b.SetObjCountPtr(obj_count_ptr_b);
 		ShmPointer<ClassB> b_pointer = ShmPointer<ClassB>(obj_ptr_b, shm_obj_count_ptr_b);
 		
-		if(a_pointer) {
+		if (a_pointer) {
 			a_pointer->Update();
 		}
 
-		if(b_pointer) {
+		if (b_pointer) {
 			b_pointer->Update();
 		}
 	}

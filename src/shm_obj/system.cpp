@@ -1,3 +1,3 @@
 #include "system.h"
 
-bool System::resume_ = false;
+bool System::resume_= false;

@@ -3,9 +3,6 @@
 
 #include <new>
 #include "singleton.h"
-#include "shm_obj.h"
-
-namespace shm_obj {
 
 class IObjectCreator {
 public:	
@@ -33,31 +30,24 @@ public:
 	}
 };
 
-/// class id 必须大于零
-class ClassIdGenerator {
-public:
-	static const ClassId INVALID_CLASS_ID = 0;
-	static ClassId NewClassId() {
-		return ++class_id_;
-	};
-private:
-	static ClassId class_id_; 
+/// FIXME: 更好的实现class_type的方式？
+enum ClassTypeEnum {
+	TYPE_MIN,
+	TYPE_ShmObjCount,
+	TYPE_Base,
+	TYPE_ClassA,	
+	TYPE_ClassB,
+	MaxClassCount
 };
 
-#define DeclareTypeName(ClassName)	static ClassId TYPE
+#define DeclareTypeName(ClassName)	static const ClassTypeEnum TYPE = TYPE_##ClassName
 //#define ImplmentTypeName(ClassName) const ClassTypeEnum ClassName::TYPE = ClassTypeEnum::ClassName
-#define ImplmentTypeName(ClassName)			ClassId ClassName::TYPE = ( \
-												ClassId class_id = ClassIdGenerator::NewClassId(); \
-												assert(class_id != ClassIdGenerator::INVALID_CLASS_ID); \
-												assert(0 == ObjectCreator::Instance()::RegisterObjectCreator<ClassName>(class_id)); \
-												class_id; \
-											)
+
 
 class ObjectCreatorMgr : public Singleton<ObjectCreatorMgr> {
 public:
 	DeclareSingleton(ObjectCreatorMgr);
-public:
-	static const int MAX_CLASS_ID = 0xff;
+
 public:
 	template <typename T>	
 	T* CreateObject(void* addr)	{
@@ -72,30 +62,18 @@ public:
 		return 0;
 	}
 
-	template <typename T> 
-	int RegisterObjectCreator(ClassId class_id) {			
-		if (class_id >= MAX_CLASS_ID) {
-			return -1;
-		}
-
-		obj_creator_[class_id] = ObjectCreator<T>::InstancePtr();
-		return 0;
-	}
-
-	void* CreateObject(void* addr, ClassId class_id) {
+	void* CreateObject(void* addr, ClassTypeEnum class_id) {
 		IObjectCreator* creator = obj_creator_[class_id];
 		void* obj = creator->ReplacementNew(addr);
 		return obj;
 	}
 
-	void FreeObject(void* addr, ClassId class_id) {
+	void FreeObject(void* addr, ClassTypeEnum class_id) {
 		IObjectCreator* creator = obj_creator_[class_id];
 		creator->Deconstructor(addr);
 	}
 private:
-	IObjectCreator* obj_creator_[MAX_CLASS_ID];	
+	IObjectCreator* obj_creator_[MaxClassCount];	
 };
-
-} //namespace
 
 #endif //OBJ_CREATOR_MGR_H_

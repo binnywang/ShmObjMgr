@@ -25,7 +25,7 @@ public:
 		} 
 	}
 
-	~ShmObjCount() {LOG_DEBUG("~ShmObjCount\n");}
+	~ShmObjCount() {LOG_ERROR("~ShmObjCount\n");}
 
 private:
 	inline size_t IncUseCount() {
@@ -96,8 +96,7 @@ public:
 		}
 	}
 
-	virtual int Recover() {
-		return 0;
+	virtual void Recover() {
 	}
 
 	void Reset() {
@@ -152,7 +151,7 @@ public:
 		return 0;
 	}
 
-	ShmObjCountPtr(const ShmObjCountPtr& r) : obj_count_ptr_(r.obj_count_ptr_) {
+	explicit ShmObjCountPtr(const ShmObjCountPtr& r) : obj_count_ptr_(r.obj_count_ptr_) {
 		if (obj_count_ptr_) {
 			obj_count_ptr_->AddRef();
 		}
@@ -221,13 +220,13 @@ public:
 		Reset();
 	}
 
-	WeakShmObjCountPtr(const WeakShmObjCountPtr & r) : obj_count_ptr_(r.obj_count_ptr_) {
+	explicit WeakShmObjCountPtr(const WeakShmObjCountPtr & r) : obj_count_ptr_(r.obj_count_ptr_) {
 		if (obj_count_ptr_) {
 			obj_count_ptr_->WeakAddRef();
 		}
 	}
 
-	WeakShmObjCountPtr(const ShmObjCountPtr & r) : obj_count_ptr_(r.obj_count_ptr_) {
+	explicit WeakShmObjCountPtr(const ShmObjCountPtr & r) : obj_count_ptr_(r.obj_count_ptr_) {
 		if (obj_count_ptr_) {
 			obj_count_ptr_->WeakAddRef();
 		}
@@ -284,6 +283,12 @@ public:
 private:
 	ShmObjPtr<ShmObjCount> obj_count_ptr_;
 };
+
+ShmObjCountPtr::ShmObjCountPtr(const WeakShmObjCountPtr& r): obj_count_ptr_(r.obj_count_ptr_) {
+	if (obj_count_ptr_) {
+		obj_count_ptr_->AddRef();
+	}
+}
 
 } //namespace
 
