@@ -2,6 +2,7 @@
 #define OBJ_CREATOR_MGR_H_
 
 #include <new>
+#include <assert.h>
 #include "singleton.h"
 #include "shm_obj.h"
 
@@ -33,25 +34,6 @@ public:
 	}
 };
 
-/// class id 必须大于零
-class ClassIdGenerator {
-public:
-	static const ClassId INVALID_CLASS_ID = 0;
-	static ClassId NewClassId() {
-		return ++class_id_;
-	};
-private:
-	static ClassId class_id_; 
-};
-
-#define DeclareTypeName(ClassName)	static ClassId TYPE
-//#define ImplmentTypeName(ClassName) const ClassTypeEnum ClassName::TYPE = ClassTypeEnum::ClassName
-#define ImplmentTypeName(ClassName)			ClassId ClassName::TYPE = ( \
-												ClassId class_id = ClassIdGenerator::NewClassId(); \
-												assert(class_id != ClassIdGenerator::INVALID_CLASS_ID); \
-												assert(0 == ObjectCreator::Instance()::RegisterObjectCreator<ClassName>(class_id)); \
-												class_id; \
-											)
 
 class ObjectCreatorMgr : public Singleton<ObjectCreatorMgr> {
 public:
@@ -95,6 +77,31 @@ public:
 private:
 	IObjectCreator* obj_creator_[MAX_CLASS_ID];	
 };
+
+
+/// class id 必须大于零
+class ClassIdGenerator {
+public:
+	static const ClassId INVALID_CLASS_ID = 0;
+	static ClassId NewClassId() {
+		return ++class_id_;
+	};
+private:
+	static ClassId class_id_; 
+};
+
+template <typename T>
+ClassId RegisterClass() {
+	ClassId class_id = ClassIdGenerator::NewClassId();
+	assert(class_id != ClassIdGenerator::INVALID_CLASS_ID);
+	assert(0 == ObjectCreatorMgr::Instance().RegisterObjectCreator<T>(class_id));
+	return class_id;
+}
+
+#define DeclareTypeName(ClassName) static ClassId TYPE
+//#define ImplmentTypeName(ClassName) const ClassTypeEnum ClassName::TYPE = ClassTypeEnum::ClassName
+#define ImplmentTypeName(ClassName) ClassId ClassName::TYPE = RegisterClass<ClassName>()
+
 
 } //namespace
 
