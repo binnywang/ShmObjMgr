@@ -124,4 +124,9 @@ void ClassB::Update() {
 	foo_.Update();
 }
 
+
+ImplmentTypeName(Base);
+ImplmentTypeName(ClassA);
+ImplmentTypeName(ClassB);
+
 #endif

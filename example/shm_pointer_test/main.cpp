@@ -16,12 +16,6 @@
 #include "shm_obj_test.h"
 
 size_t InitShmPool() {
-
-	/// register obj creator;
-	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassA>();
-	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassB>();
-	ObjectCreatorMgr::Instance().RegisterObjectCreator<ShmObjCount>();
-
 	GroupId group_id;
 	ShmObjMgr::Instance().NewClassGroup(group_id);
 

@@ -27,8 +27,8 @@ template <typename T> inline void shm_pointer_construct( ShmPointer<T> * const p
 template <typename T>
 class ShmPointer {
 public: 
-	ShmPointer() { LOG_DEBUG("ShmPointer\n"); }
-	virtual ~ShmPointer() {LOG_DEBUG("~ShmPointer\n");}
+	ShmPointer() {}
+	virtual ~ShmPointer() {}
 
 	template <typename Y>
 	explicit ShmPointer(const ShmObjPtr<Y>& p) {

@@ -18,8 +18,10 @@ static const LogLevel cur_log_level = LOG_LEVEL_ERROR;
 		} \
 	} while(0)
 
-#define LOG_ERROR(format, ...)  LOG(LOG_LEVEL_ERROR, format, ##__VA_ARGS__)
-#define LOG_INFO(format, ...)   LOG(LOG_LEVEL_INFO, format, ##__VA_ARGS__)
-#define LOG_DEBUG(format, ...)  LOG(LOG_LEVEL_DEBUG, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...)  LOG(LOG_LEVEL_ERROR, "File:%s| Line:%05d|Fun:%s|"format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)   LOG(LOG_LEVEL_INFO,  "File:%s| Line:%05d|Fun:%s|"format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...)  LOG(LOG_LEVEL_DEBUG, "File:%s| Line:%05d|Fun:%s|"format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+//#define LOG_INFO(format, ...)   LOG(LOG_LEVEL_INFO, format, ##__VA_ARGS__)
+//#define LOG_DEBUG(format, ...)  LOG(LOG_LEVEL_DEBUG, format, ##__VA_ARGS__)
 
 #endif //LOG_H_

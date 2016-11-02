@@ -11,8 +11,8 @@ template <typename T> class WeakShmPointer;
 template <typename T>
 class WeakShmPointer {
 public: 
-	WeakShmPointer() {LOG_DEBUG("WeakShmPointer\n");}
-	virtual ~WeakShmPointer() {LOG_DEBUG("~WeakShmPointer\n"); Reset();}
+	WeakShmPointer() {}
+	virtual ~WeakShmPointer() {Reset();}
 
 	template <typename Y> 
 	//WeakShmPointer(const WeakShmPointer<Y>& r) : ShmPointerBase(r.Lock().obj_ptr_, r.Lock().obj_id_) {
@@ -62,6 +62,7 @@ public:
 			return ret;
 		}
 		count_ptr_ = obj_ptr_;
+		return 0;
 	}
 	
 	void Reset() {

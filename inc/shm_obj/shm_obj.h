@@ -12,8 +12,30 @@ namespace shm_obj {
 /// 共享内存对象基类
 class ShmObj {
 public:
+	ShmObj() {
+		if (System::IsResume()) {
+			return;
+		}
+		use_count_ = 0;
+	}
+
 	virtual void Recover() {}
-	virtual ~ShmObj() { LOG_DEBUG("~ShmObj\n");}
+
+	virtual ~ShmObj() { LOG_DEBUG("~ShmObj"); use_count_ = 0; }
+
+	inline size_t IncUseCount() {
+		return ++use_count_;
+	}
+
+	inline size_t DecUseCount() {
+		return --use_count_;
+	}
+
+	inline size_t UseCount() {
+		return use_count_;
+	}
+private:
+	size_t use_count_;
 };
 
 typedef uint8_t GroupId;
@@ -77,7 +99,7 @@ public:
 
 	const ObjId& obj_id() const { return obj_id_;}
 
- 	/// for debug
+ 	/// only for debug
  	void set_obj_id(const ObjId& obj_id) { obj_id_ = obj_id;}
 
  	T* Get() const { return obj_ptr_; }

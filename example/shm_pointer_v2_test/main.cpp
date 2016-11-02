@@ -16,11 +16,6 @@
 #include "shm_obj_test.h"
 
 size_t InitShmPool() {
-
-	/// register obj creator;
-	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassA>();
-	ObjectCreatorMgr::Instance().RegisterObjectCreator<ClassB>();
-
 	GroupId group_id;
 	ShmObjMgr::Instance().NewClassGroup(group_id);
 
@@ -149,7 +144,8 @@ int main(int argc, char* argv[]) {
 		ShmObjPtr<ClassA> obj_ptr_a;
 		obj_ptr_a.set_obj_id(obj_id_a);
 
-		ShmPointer<ClassA> a_pointer = ShmPointer<ClassA>(obj_ptr_a);
+		ShmPointer<ClassA> a_pointer;
+		a_pointer.SetObjPtr(obj_ptr_a);
 		
 		std::cout << "input b_pointer.obj_id" << std::endl;
 
@@ -161,10 +157,8 @@ int main(int argc, char* argv[]) {
 		obj_ptr_b.set_obj_id(obj_id_b);
 
 
-		ShmPointer<ClassB> b_pointer = ShmPointer<ClassB>(obj_ptr_b);
-
-		a_pointer.Recover();
-		b_pointer.Recover();
+		ShmPointer<ClassB> b_pointer;
+		b_pointer.SetObjPtr(obj_ptr_b);
 		
 		if (a_pointer) {
 			a_pointer->Update();

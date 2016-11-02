@@ -65,7 +65,11 @@ private:
 /// FIXME: 如何解决模板类循环引用?
 template <typename T>
 ShmObjPtr<T>::operator bool() const {
-	if (obj_id_.id == 0 || obj_ptr_ == 0) {
+	if (obj_id_.id == 0) {
+		return false;
+	}
+	int ret = ShmObjMgr::Instance().Recover(*const_cast<ShmObjPtr<T> *>(this));
+	if (ret != 0) {
 		return false;
 	}
 	return true;

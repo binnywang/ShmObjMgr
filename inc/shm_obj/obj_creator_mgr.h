@@ -99,7 +99,6 @@ ClassId RegisterClass() {
 }
 
 #define DeclareTypeName(ClassName) static ClassId TYPE
-//#define ImplmentTypeName(ClassName) const ClassTypeEnum ClassName::TYPE = ClassTypeEnum::ClassName
 #define ImplmentTypeName(ClassName) ClassId ClassName::TYPE = RegisterClass<ClassName>()
 
 

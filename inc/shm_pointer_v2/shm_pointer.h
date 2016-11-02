@@ -27,8 +27,8 @@ template <typename T> inline void shm_pointer_construct( ShmPointer<T> * const p
 template <typename T>
 class ShmPointer {
 public: 
-	ShmPointer() { LOG_DEBUG("ShmPointer"); }
-	virtual ~ShmPointer() {LOG_DEBUG("~ShmPointer"); Reset();}
+	ShmPointer() {}
+	virtual ~ShmPointer() { Reset();}
 
 	template <typename Y>
 	explicit ShmPointer(const ShmObjPtr<Y>& p) {
@@ -123,7 +123,15 @@ public:
 
 	T* Get() const { return obj_ptr_.Get(); }
 
-	const ShmObjPtr<T> & GetObjPtr() const { return obj_ptr_;} 
+	const ShmObjPtr<T> & GetObjPtr() const { return obj_ptr_;}
+
+	/// for debug
+	template <typename Y>
+	void SetObjPtr(const ShmObjPtr<Y>& p) {
+		shm_pointer_assert_convertible<Y, T>();
+		obj_ptr_ = p;
+		count_ptr_ = obj_ptr_;
+	} 
 
 private:
 	ShmObjPtr<ShmObj> count_ptr_; /// 计数器类

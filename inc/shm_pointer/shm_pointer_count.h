@@ -25,7 +25,7 @@ public:
 		} 
 	}
 
-	~ShmObjCount() {LOG_ERROR("~ShmObjCount\n");}
+	~ShmObjCount() {}
 
 private:
 	inline size_t IncUseCount() {
@@ -112,6 +112,8 @@ private:
 	ShmObjPtr<ShmObjCount> self_ptr_; /// for free self
 };
 
+ImplmentTypeName(ShmObjCount);
+
 class WeakShmObjCountPtr;
 
 class ShmObjCountPtr {
@@ -119,17 +121,14 @@ public:
 
 	friend class WeakShmObjCountPtr;
 
-	ShmObjCountPtr() { LOG_DEBUG("ShmPointerCount\n");}
-	virtual ~ShmObjCountPtr() {
-		LOG_DEBUG("~ShmObjCountPtr\n"); 
-		Reset();
-	}
+	ShmObjCountPtr() {}
+	virtual ~ShmObjCountPtr() { Reset(); }
 
 	template <typename T>
 	ShmObjCountPtr(const ShmObjPtr<T>& p) {
 		obj_count_ptr_ = ShmObjMgr::Instance().CreateObject<ShmObjCount>();
 		if (! obj_count_ptr_) {
-			LOG_ERROR("%s: Create ShmObjCount Error, Free ShmObj[%zu]\n", __FUNCTION__,  p.obj_id().id);
+			LOG_ERROR("Create ShmObjCount Error, Free ShmObj[%zu]", p.obj_id().id);
 			ShmObjMgr::Instance().FreeObject(p);
 			assert(obj_count_ptr_);
 		}
@@ -142,7 +141,7 @@ public:
 	int Init(const ShmObjPtr<T> &p) {
 		obj_count_ptr_ = ShmObjMgr::Instance().CreateObject<ShmObjCount>();
 		if (! obj_count_ptr_) {
-			LOG_ERROR("%s: Create ShmObjCount Error, Free ShmObj[%zu]\n", __FUNCTION__,  p.obj_id().id);
+			LOG_ERROR("Create ShmObjCount Error, Free ShmObj[%zu]", p.obj_id().id);
 			return -1;
 		} else {
 			obj_count_ptr_->SetShmObjPtr(p);
@@ -177,7 +176,7 @@ public:
 	int Recover() {
 		int ret = ShmObjMgr::Instance().Recover(obj_count_ptr_);
 		if (ret != 0) {
-			LOG_ERROR("%s: ShmObjCountPtr RecoverPtr error\n", __FUNCTION__);
+			LOG_ERROR("ShmObjCountPtr Recovery Error| obj_count_ptr[%zu]", obj_count_ptr_.obj_id().id);
 			obj_count_ptr_.Reset();
 		}
 		return ret;
@@ -213,12 +212,9 @@ public:
 
 	friend class ShmObjCountPtr;
 
-	WeakShmObjCountPtr() {	LOG_DEBUG("WeakShmObjCountPtr\n");}
+	WeakShmObjCountPtr() {}
 
-	~WeakShmObjCountPtr() {
-		LOG_DEBUG("~WeakShmObjCountPtr\n"); 
-		Reset();
-	}
+	~WeakShmObjCountPtr() { Reset(); }
 
 	explicit WeakShmObjCountPtr(const WeakShmObjCountPtr & r) : obj_count_ptr_(r.obj_count_ptr_) {
 		if (obj_count_ptr_) {
@@ -263,7 +259,7 @@ public:
 	int Recover() {
 		int ret = ShmObjMgr::Instance().Recover(obj_count_ptr_);
 		if (ret != 0) {
-			LOG_ERROR("%s: WeakShmObjCountPtr RecoverPtr error\n", __FUNCTION__);
+			LOG_ERROR("WeakShmObjCountPtr Recovery Error|obj_count_ptr[%zu]", obj_count_ptr_.obj_id().id);
 			obj_count_ptr_.Reset();
 		}
 		return ret;
